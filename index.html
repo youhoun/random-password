@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#101827">
+<title>Random Password Generator</title>
+<style>
+:root{color-scheme:dark;--bg:#0b1020;--panel:#121b2e;--line:#293650;--text:#f3f6fc;--muted:#9aa9c2;--accent:#83f0c2;--accent2:#b8a7ff}
+*{box-sizing:border-box}body{margin:0;min-height:100vh;background:radial-gradient(ellipse at 15% 0%,#1a2c46 0,transparent 42%),var(--bg);font:16px/1.5 system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;color:var(--text);display:grid;place-items:center;padding:24px}
+.wrap{width:min(100%,620px)}.brand{display:flex;align-items:center;gap:12px;margin:0 0 22px}.logo{width:46px;height:46px;display:grid;place-items:center;background:linear-gradient(135deg,var(--accent),#63b9f4);border-radius:14px;color:#102033;font-size:23px;font-weight:900}.brand h1{font-size:clamp(22px,4vw,30px);margin:0;letter-spacing:-.7px}.brand p{margin:2px 0 0;color:var(--muted);font-size:14px}
+.card{background:rgba(18,27,46,.94);border:1px solid var(--line);border-radius:24px;padding:clamp(20px,5vw,32px);box-shadow:0 24px 80px #0005}.topline{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:20px}.eyebrow{font-size:12px;font-weight:800;letter-spacing:1.4px;color:var(--accent)}.pill{font-size:12px;color:var(--accent);border:1px solid #326a5a;background:#16382f;padding:5px 9px;border-radius:999px}
+.output{border:1px solid #34435e;background:#0b1324;border-radius:16px;padding:16px;display:flex;align-items:center;gap:12px;min-height:76px}.password{font:600 18px/1.5 ui-monospace,SFMono-Regular,Consolas,monospace;overflow-wrap:anywhere;flex:1;color:#fff;min-width:0}.placeholder{color:#71809a;font-weight:400}.iconbtn{flex-shrink:0;border:1px solid #3a4a66;background:#1c2940;color:var(--text);border-radius:11px;padding:10px 12px;cursor:pointer}.iconbtn:hover{border-color:var(--accent)}button{font:inherit;transition:transform .12s,filter .12s}button:active{transform:scale(.98)}.primary{width:100%;border:0;border-radius:13px;background:linear-gradient(100deg,var(--accent),#7dd8e9);color:#0c1a25;font-weight:800;padding:14px 18px;cursor:pointer;margin-top:14px}.primary:hover{filter:brightness(1.06)}
+.section{margin-top:26px}.sectionhead{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:12px}.sectionhead label,.sectionhead strong{font-weight:700}.lengthnum{font:700 14px ui-monospace,monospace;color:var(--accent)}input[type=range]{width:100%;accent-color:var(--accent);cursor:pointer}.rangeends{display:flex;justify-content:space-between;color:var(--muted);font-size:12px;margin-top:2px}
+.options{display:grid;grid-template-columns:1fr 1fr;gap:10px}.option{display:flex;align-items:center;gap:10px;padding:13px;border:1px solid var(--line);border-radius:13px;background:#0e1729;cursor:pointer}.option:hover{border-color:#526684}.option input{width:17px;height:17px;accent-color:var(--accent)}.option span{font-size:14px}.option small{display:block;color:var(--muted);font-size:12px}
+.status{min-height:22px;margin:10px 0 0;color:var(--accent);font-size:13px}.history-title{font-size:14px;color:var(--muted);margin:0 0 10px}.history{display:grid;gap:8px}.historyrow{display:flex;align-items:center;gap:10px;border:1px solid var(--line);border-radius:11px;padding:10px 12px;background:#0e1729}.historyrow code{flex:1;min-width:0;overflow-wrap:anywhere;color:#dbe5f5;font-size:13px}.historyrow button{background:transparent;border:0;color:var(--accent);cursor:pointer;font-size:13px}.empty{color:#71809a;font-size:13px;padding:8px 0}.note{font-size:12px;color:var(--muted);margin:20px 0 0}.note strong{color:#d9e3f4}.footer{text-align:center;color:#65748d;font-size:12px;margin-top:18px}
+@media(max-width:440px){body{padding:14px}.options{grid-template-columns:1fr}.output{align-items:flex-start}.password{font-size:16px}.card{border-radius:19px}}
+</style>
+</head>
+<body>
+<main class="wrap">
+  <header class="brand">
+    <div class="logo" aria-hidden="true">✳</div>
+    <div><h1>Random Password Generator</h1><p>Create a strong password in seconds</p></div>
+  </header>
+  <section class="card" aria-label="Password generator">
+    <div class="topline"><span class="eyebrow">PASSWORD STUDIO</span><span class="pill">● Local & private</span></div>
+    <div class="output">
+      <div id="password" class="password placeholder" aria-live="polite">Your password appears here</div>
+      <button id="copy" class="iconbtn" type="button" aria-label="Copy password" title="Copy password">Copy</button>
+    </div>
+    <button id="generate" class="primary" type="button">✦ &nbsp; Generate password</button>
+    <p id="status" class="status" role="status"></p>
+    <div class="section">
+      <div class="sectionhead"><label for="length">Password length</label><strong id="lengthValue" class="lengthnum">16 characters</strong></div>
+      <input id="length" type="range" min="8" max="48" value="16">
+      <div class="rangeends"><span>8 characters</span><span>48 characters</span></div>
+    </div>
+    <div class="section">
+      <div class="sectionhead"><strong>Include characters</strong></div>
+      <div class="options">
+        <label class="option"><input type="checkbox" id="upper" checked><span>Uppercase letters<small>A–Z</small></span></label>
+        <label class="option"><input type="checkbox" id="lower" checked><span>Lowercase letters<small>a–z</small></span></label>
+        <label class="option"><input type="checkbox" id="numbers" checked><span>Numbers<small>0–9</small></span></label>
+        <label class="option"><input type="checkbox" id="symbols" checked><span>Symbols<small>! @ # $ % &amp;</small></span></label>
+      </div>
+    </div>
+    <div class="section">
+      <div class="sectionhead"><strong>Recently generated</strong><button id="clearHistory" class="iconbtn" type="button">Clear</button></div>
+      <div id="history" class="history"><div class="empty">Your generated passwords will appear here.</div></div>
+    </div>
+    <p class="note"><strong>Privacy tip:</strong> Passwords are generated in this browser and are not sent to a server. This tool cannot check whether Google has used or accepted a password before. Keep passwords private and use a unique one for each account.</p>
+  </section>
+  <div class="footer">A simple password tool · Works offline after you save this file</div>
+</main>
+<script>
+(() => {
+  const $ = id => document.getElementById(id);
+  const sets = {
+    upper: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ',
+    lower: 'abcdefghijklmnopqrstuvwxyz',
+    numbers: '0123456789',
+    symbols: '!@#$%^&*()-_=+[]{}?'
+  };
+  let current = '';
+  let history = [];
+
+  // Use crypto.getRandomValues with rejection sampling to avoid modulo bias.
+  function secureIndex(max) {
+    const limit = 256 - (256 % max);
+    const byte = new Uint8Array(1);
+    do { crypto.getRandomValues(byte); } while (byte[0] >= limit);
+    return byte[0] % max;
+  }
+  function shuffle(items) {
+    for (let i = items.length - 1; i > 0; i--) {
+      const j = secureIndex(i + 1);
+      [items[i], items[j]] = [items[j], items[i]];
+    }
+    return items;
+  }
+  function generate() {
+    const selected = Object.keys(sets).filter(key => $(key).checked).map(key => sets[key]);
+    if (!selected.length) {
+      $('status').textContent = 'Select at least one character type.';
+      return;
+    }
+    const length = Number($('length').value);
+    const chars = selected.map(set => set[secureIndex(set.length)]);
+    const pool = selected.join('');
+    while (chars.length < length) chars.push(pool[secureIndex(pool.length)]);
+    current = shuffle(chars).join('');
+    $('password').textContent = current;
+    $('password').classList.remove('placeholder');
+    $('status').textContent = 'New password generated.';
+    history = [current, ...history.filter(p => p !== current)].slice(0, 4);
+    renderHistory();
+  }
+  async function copyText(value) {
+    if (!value) { $('status').textContent = 'Generate a password first.'; return; }
+    try {
+      await navigator.clipboard.writeText(value);
+      $('status').textContent = 'Password copied to clipboard.';
+    } catch {
+      const area = document.createElement('textarea');
+      area.value = value; area.style.position = 'fixed'; area.style.opacity = '0';
+      document.body.appendChild(area); area.select();
+      const ok = document.execCommand('copy'); area.remove();
+      $('status').textContent = ok ? 'Password copied to clipboard.' : 'Copy was blocked by your browser. Select and copy the password manually.';
+    }
+  }
+  function renderHistory() {
+    const root = $('history');
+    root.replaceChildren();
+    if (!history.length) {
+      const empty = document.createElement('div'); empty.className = 'empty';
+      empty.textContent = 'Your generated passwords will appear here.'; root.appendChild(empty); return;
+    }
+    history.forEach(password => {
+      const row = document.createElement('div'); row.className = 'historyrow';
+      const code = document.createElement('code'); code.textContent = password;
+      const button = document.createElement('button'); button.type = 'button'; button.textContent = 'Copy';
+      button.addEventListener('click', () => copyText(password));
+      row.append(code, button); root.appendChild(row);
+    });
+  }
+  $('length').addEventListener('input', () => { $('lengthValue').textContent = `${$('length').value} characters`; });
+  $('generate').addEventListener('click', generate);
+  $('copy').addEventListener('click', () => copyText(current));
+  $('clearHistory').addEventListener('click', () => { history = []; renderHistory(); $('status').textContent = 'Recent list cleared.'; });
+  generate();
+})();
+</script>
+</body>
+</html>
